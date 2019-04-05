@@ -31,8 +31,8 @@ public class Cli {
                 .help("The password in the netpunkt triple used when calling update. Default '2****r'.");
 
         parser.addArgument("-t", "--template")
-                .setDefault("allowall")
-                .help("The template to use when calling update. Default 'allowall'.");
+                .setDefault("dbc")
+                .help("The template to use when calling update. Default 'dbc'.");
 
         parser.addArgument("-tr", "--tracking-id")
                 .help("The tracking id to use when calling update. No default tracking id.");

@@ -31,7 +31,7 @@ optional arguments:
   -np PASSWORD, --password PASSWORD
                          The password in the netpunkt triple used when calling update. Default '2****r'.
   -t TEMPLATE, --template TEMPLATE
-                         The template to use when calling update. Default 'allowall'.
+                         The template to use when calling update. Default 'dbc'.
   -tr TRACKING_ID, --tracking-id TRACKING_ID
                          The tracking id to use when calling update. No default tracking id.
   -l ERROR_LIMIT, --error-limit ERROR_LIMIT

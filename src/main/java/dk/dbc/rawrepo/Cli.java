@@ -27,8 +27,9 @@ public class Cli {
                 .help("The group in the netpunkt triple used when calling update. Default '010100'.");
 
         parser.addArgument("-np", "--password")
-                .setDefault("20Koster")
-                .help("The password in the netpunkt triple used when calling update. Default '2****r'.");
+                .setDefault("not-used")
+                .help("The password in the netpunkt triple used when calling update. \n" +
+                        "Default is a dummy password because the tool is ip-validated when run on internal network.");
 
         parser.addArgument("-t", "--template")
                 .setDefault("dbc")

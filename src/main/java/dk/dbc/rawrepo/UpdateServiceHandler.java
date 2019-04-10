@@ -136,8 +136,10 @@ class UpdateServiceHandler {
                 bibliographicRecordExtraData.setProviderName(provider);
             }
 
-            extraRecordData.getContent().add(bibliographicRecordExtraDataMarshaller
-                    .toXmlDocument(bibliographicRecordExtraData).getDocumentElement());
+            synchronized (bibliographicRecordExtraDataMarshaller) {
+                extraRecordData.getContent().add(bibliographicRecordExtraDataMarshaller
+                        .toXmlDocument(bibliographicRecordExtraData).getDocumentElement());
+            }
         }
         bibliographicRecord.setExtraRecordData(extraRecordData);
 

@@ -29,7 +29,8 @@ optional arguments:
   -ng GROUP_ID, --group-id GROUP_ID
                          The group in the netpunkt triple used when calling update. Default '010100'.
   -np PASSWORD, --password PASSWORD
-                         The password in the netpunkt triple used when calling update. Default '2****r'.
+                         The password in the netpunkt triple used when calling update. 
+                         Default is a dummy password because the tool is ip-validated when run on internal network.
   -t TEMPLATE, --template TEMPLATE
                          The template to use when calling update. Default 'dbc'.
   -tr TRACKING_ID, --tracking-id TRACKING_ID
@@ -47,7 +48,6 @@ optional arguments:
   --validate-only [{true,false}]
                          Used to specify that the record should only be validated and not actually updated. 
                          Default true, so must be set to false in order to actually update the records.
-
 
 ```
 ## Examples

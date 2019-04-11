@@ -51,17 +51,30 @@ optional arguments:
 
 ```
 ## Examples
-Validate only:
+##### Validate only:
 ```bash
 cat records.xml | rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 -
 ```
-Actually update records: 
+or
+```bash
+rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 records.xml
+
+```
+##### Actually update records: 
 ```bash
 cat records.xml | rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 --validate-only false -
 ```
+or
+```bash
+rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 --validate-only false records.xml
+```
 
-Full (validate only) example:
+##### Full (validate only) example:
 ```bash
 cat records.xml | rrupdate -nu netpunkt-user -np netpunkt-password -ng netpunkt-group -t book -tr imported-by-rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 --provider my-provider --priority 999 -
+```
+or
+```bash
+rrupdate -nu netpunkt-user -np netpunkt-password -ng netpunkt-group -t book -tr imported-by-rrupdate -u http://oss-services.dbc.dk/UpdateService/2.0 --provider my-provider --priority 999 records.xml
 ```
 

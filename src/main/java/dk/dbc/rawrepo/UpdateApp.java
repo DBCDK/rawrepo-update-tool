@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
+ * See license text in LICENSE.txt
+ */
+
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.DanMarc2Charset;

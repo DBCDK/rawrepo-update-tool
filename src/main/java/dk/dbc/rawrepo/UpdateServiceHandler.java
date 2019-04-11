@@ -105,11 +105,11 @@ class UpdateServiceHandler {
 
                 record = marcReader.read();
 
-                if (loopCount % 80 == 0 || record == null) {
+                if (loopCount % 100 == 0 || record == null) {
                     executor.shutdown();
                     executor.awaitTermination(60, TimeUnit.MINUTES);
                     executor = Executors.newFixedThreadPool(threadCount);
-                    System.out.println(loopCount);
+                    System.out.println(String.format("Updated %s records",loopCount));
                 }
             }
         } catch (ParserConfigurationException e) {
@@ -198,8 +198,6 @@ class UpdateServiceHandler {
                         }
 
                         if (result.getMessages() != null) {
-                            //System.out.println("Error updating '" + recordId + ":" + recordAgencyId + "'. Got message: " + result.getMessages());
-
                             final StringBuilder sb = new StringBuilder();
                             sb.append("Error updating '" + recordId + ":" + recordAgencyId + "'. ");
                             sb.append("Got message: ");

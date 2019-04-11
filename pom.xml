@@ -110,6 +110,13 @@
                     <include>catalogingUpdate.xsd</include>
                 </includes>
             </resource>
+            <resource>
+                <targetPath>.</targetPath>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>rrupdate.sh</include>
+                </includes>
+            </resource>
         </resources>
 
         <plugins>

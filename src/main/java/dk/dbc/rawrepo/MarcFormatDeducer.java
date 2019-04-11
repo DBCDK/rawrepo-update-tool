@@ -1,9 +1,9 @@
-package dk.dbc.rawrepo;
-
 /*
  * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
  * See license text in LICENSE.txt
  */
+
+package dk.dbc.rawrepo;
 
 import java.io.IOException;
 import java.io.PushbackInputStream;

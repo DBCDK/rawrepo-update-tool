@@ -47,7 +47,7 @@ public class UpdateApp {
         String provider = cli.args.getString("provider");
         int errorLimit = cli.args.getInt("error_limit");
         String updateServiceUrl = cli.args.getString("url");
-        boolean validateOnly = cli.args.get("validate_only") != null ? cli.args.get("validate_only") : false;
+        boolean validateOnly = cli.args.get("validate_only") != null ? cli.args.get("validate_only") : true;
 
         final File in = cli.args.get("IN");
 

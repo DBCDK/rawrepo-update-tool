@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class UpdateServiceHandler {
     private static final String RECORD_SCHEMA = "info:lc/xmlns/marcxchange-v1";
@@ -47,7 +48,8 @@ class UpdateServiceHandler {
     private final BibliographicRecordExtraDataMarshaller bibliographicRecordExtraDataMarshaller =
             new BibliographicRecordExtraDataMarshaller();
 
-    private int errorCount = 0;
+    private AtomicInteger errorCount = new AtomicInteger(0);
+    private AtomicInteger successCount = new AtomicInteger(0);
 
     private final String username;
     private final String groupId;
@@ -89,14 +91,14 @@ class UpdateServiceHandler {
             final DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
             final int threadCount = 8;
-            int loopCount = 0;
+            AtomicInteger totalCount = new AtomicInteger(0);
 
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
             MarcRecord record = marcReader.read();
             while (record != null) {
-                loopCount++;
+                totalCount.getAndIncrement();
 
-                if (errorLimit > -1 && errorCount > errorLimit) {
+                if (errorLimit > -1 && errorCount.get() > errorLimit) {
                     throw new RuntimeException("Hit error limit, so aborting");
                 }
 
@@ -105,19 +107,24 @@ class UpdateServiceHandler {
 
                 record = marcReader.read();
 
-                if (loopCount % 100 == 0 || record == null) {
+                if (totalCount.get() % 100 == 0 || record == null) {
                     executor.shutdown();
                     executor.awaitTermination(60, TimeUnit.MINUTES);
                     executor = Executors.newFixedThreadPool(threadCount);
-                    System.out.println(String.format("Updated %s records",loopCount));
+                    if (record != null) { // Only print the loop message while actually looping
+                        System.out.println(String.format("Processed %s records", totalCount));
+                    }
                 }
             }
+            System.out.println("DONE");
+            System.out.println(String.format("Processed a total of %s records", totalCount));
+            System.out.println(String.format("%s with success", successCount));
+            System.out.println(String.format("%s with error", errorCount));
         } catch (ParserConfigurationException e) {
             throw new RuntimeException();
         } catch (InterruptedException e) {
             System.out.println("Interrupt exception - aborting.");
             throw new RuntimeException();
-
         } catch (MarcReaderException e) {
             e.printStackTrace();
         }
@@ -180,8 +187,10 @@ class UpdateServiceHandler {
                     final BibliographicRecord bibliographicRecord = buildRecord(doc);
                     final UpdateRecordResult result = updateServiceConnector.updateRecord(groupId, template, bibliographicRecord, trackingId);
                     // Error handling. If a record fails in update service we need to know the id of the failed record.
-                    if (result.getUpdateStatus() != UpdateStatusEnum.OK) {
-                        errorCount++; // Check for error count last so that we get the last error message
+                    if (result.getUpdateStatus() == UpdateStatusEnum.OK) {
+                        successCount.getAndIncrement();
+                    } else {
+                        errorCount.getAndIncrement(); // Check for error count last so that we get the last error message
                         final Optional<Field> field001 = marcRecord.getField(MarcRecord.hasTag("001"));
                         String recordId = "unknown", recordAgencyId = "unknown";
                         if (field001.isPresent()) {
@@ -209,7 +218,6 @@ class UpdateServiceHandler {
                             }
                             sb.append(String.join(", ", messageList));
                             System.out.println(sb.toString());
-
                         } else if (result.getDoubleRecordEntries() != null) {
                             final String doubleRecordKey = result.getDoubleRecordKey();
                             final List<String> messages = new ArrayList<>();
@@ -228,20 +236,20 @@ class UpdateServiceHandler {
                     }
                 } catch (WebServiceException | NullPointerException | IllegalArgumentException ex) {
                     System.out.println("Caught exception from update: " + ex.toString());
-                    errorCount++;
+                    errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 } catch (SAXException ex) {
                     System.out.println("Could not parse line");
-                    errorCount++;
+                    errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 } catch (JAXBException e) {
                     System.out.println("Could not create extra record data.");
-                    errorCount++;
+                    errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 }
             } catch (IOException ex) {
                 System.out.println("Could not read line");
-                errorCount++;
+                errorCount.getAndIncrement();
                 throw new RuntimeException("Aborting");
             }
         }

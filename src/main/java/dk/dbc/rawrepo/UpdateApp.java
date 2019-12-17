@@ -19,9 +19,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class UpdateApp {
-    private static final int PUSHBACK_BUFFER_SIZE = 100;
+    private static final int PUSHBACK_BUFFER_SIZE = 1000;
 
     public static void main(String[] args) {
         try {
@@ -50,6 +51,7 @@ public class UpdateApp {
         boolean validateOnly = cli.args.get("validate_only") != null ? cli.args.get("validate_only") : true;
 
         final File in = cli.args.get("IN");
+        final int pushbackBufferSize = (int) Math.min(in.length(), PUSHBACK_BUFFER_SIZE);
 
         System.out.println("***************************");
         System.out.println("* Update Service URL: " + updateServiceUrl);
@@ -65,10 +67,10 @@ public class UpdateApp {
         System.out.println("***************************");
 
         try (PushbackInputStream is = "-".equals(in.getName())
-                ? new PushbackInputStream(System.in, PUSHBACK_BUFFER_SIZE)
-                : new PushbackInputStream(new FileInputStream((File) cli.args.get("IN")), PUSHBACK_BUFFER_SIZE)) {
-            final Charset inputEncoding = Charset.forName("UTF-8");
-            final MarcReader marcRecordReader = getMarcReader(cli, is, inputEncoding);
+                ? new PushbackInputStream(System.in, pushbackBufferSize)
+                : new PushbackInputStream(new FileInputStream((File) cli.args.get("IN")), pushbackBufferSize)) {
+            final Charset inputEncoding = StandardCharsets.UTF_8;
+            final MarcReader marcRecordReader = getMarcReader(cli, is, inputEncoding, pushbackBufferSize);
             final UpdateServiceHandler updateServiceHandler = new UpdateServiceHandler(username, groupId, password,
                     template, trackingId, priority, provider, validateOnly, errorLimit, updateServiceUrl);
 
@@ -82,8 +84,8 @@ public class UpdateApp {
         }
     }
 
-    private static MarcReader getMarcReader(Cli cli, PushbackInputStream is, Charset encoding) throws MarcReaderException {
-        final MarcFormatDeducer marcFormatDeducer = new MarcFormatDeducer(PUSHBACK_BUFFER_SIZE);
+    private static MarcReader getMarcReader(Cli cli, PushbackInputStream is, Charset encoding, int pushbackBufferSize) throws MarcReaderException {
+        final MarcFormatDeducer marcFormatDeducer = new MarcFormatDeducer(pushbackBufferSize);
 
         Charset sampleEncoding = encoding;
         if (encoding instanceof DanMarc2Charset) {

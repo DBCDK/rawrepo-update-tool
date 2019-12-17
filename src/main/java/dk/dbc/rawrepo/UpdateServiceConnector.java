@@ -28,7 +28,6 @@ public class UpdateServiceConnector {
 
     private static final String CONNECT_TIMEOUT_PROPERTY = "com.sun.xml.ws.connect.timeout";
     private static final String REQUEST_TIMEOUT_PROPERTY = "com.sun.xml.ws.request.timeout";
-    private static final String UPDATE_VALIDATE_ONLY_FLAG = "UPDATE_VALIDATE_ONLY_FLAG";
     private static final int CONNECT_TIMEOUT_DEFAULT_IN_MS = 60 * 1000;       // 1 minute
     private static final int REQUEST_TIMEOUT_DEFAULT_IN_MS = 60 * 60 * 1000;  // 60 minutes -- we wait and wait on open update.
 
@@ -40,18 +39,6 @@ public class UpdateServiceConnector {
     private final CatalogingUpdatePortType proxy;
 
     private final boolean validateOnly;
-
-    /**
-     * Class constructor
-     *
-     * @param endpoint web service endpoint base URL on the form "http(s)://host:port/path"
-     * @throws NullPointerException     if passed null valued {@code endpoint}
-     * @throws IllegalArgumentException if passed empty valued {@code endpoint}
-     */
-    public UpdateServiceConnector(String endpoint)
-            throws NullPointerException, IllegalArgumentException {
-        this(endpoint, "", "", false);
-    }
 
     /**
      * Class constructor

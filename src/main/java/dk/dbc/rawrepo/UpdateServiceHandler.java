@@ -33,7 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.WebServiceException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -181,7 +181,7 @@ class UpdateServiceHandler {
                     final Document doc;
                     final MarcXchangeV1Writer writer = new MarcXchangeV1Writer();
                     synchronized (dBuilder) {
-                        doc = dBuilder.parse(new ByteArrayInputStream(writer.writeRecord(marcRecord, Charset.forName("UTF-8"))));
+                        doc = dBuilder.parse(new ByteArrayInputStream(writer.writeRecord(marcRecord, StandardCharsets.UTF_8)));
                     }
 
                     final BibliographicRecord bibliographicRecord = buildRecord(doc);
@@ -208,7 +208,7 @@ class UpdateServiceHandler {
 
                         if (result.getMessages() != null) {
                             final StringBuilder sb = new StringBuilder();
-                            sb.append("Error updating '" + recordId + ":" + recordAgencyId + "'. ");
+                            sb.append("Error updating '").append(recordId).append(":").append(recordAgencyId).append("'. ");
                             sb.append("Got message: ");
 
                             final List<String> messageList = new ArrayList<>();

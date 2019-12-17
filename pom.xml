@@ -9,7 +9,7 @@
     <groupId>dk.dbc</groupId>
     <artifactId>rawrepo-update-tool</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>rawrepo-update-tool</name>
     <url>https://github.com/DBCDK/rawrepo-update-tool/</url>
 

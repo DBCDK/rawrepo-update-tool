@@ -3,7 +3,7 @@ Rawrepo update tool is a command line tool for sending all records from input or
 
 ## Installation
 ```bash
-$ curl -sL http://mavenrepo.dbc.dk/content/repositories/releases/dk/dbc/rawrepo-update-tool/1.0.1/rawrepo-update-tool-1.0.1.jar -o rrupdate.jar && unzip -op rrupdate.jar rrupdate.sh | bash -s -- --install
+$ curl -sL http://mavenrepo.dbc.dk/content/repositories/releases/dk/dbc/rawrepo-update-tool/1.0.2/rawrepo-update-tool-1.0.2.jar -o rrupdate.jar && unzip -op rrupdate.jar rrupdate.sh | bash -s -- --install
 $ source ~/.bashrc # Or log out and into a new session
 ```
 

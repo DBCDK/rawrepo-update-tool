@@ -21,7 +21,7 @@ import java.io.PushbackInputStream;
 import java.nio.charset.Charset;
 
 public class UpdateApp {
-    private static final int PUSHBACK_BUFFER_SIZE = 1000;
+    private static final int PUSHBACK_BUFFER_SIZE = 100;
 
     public static void main(String[] args) {
         try {

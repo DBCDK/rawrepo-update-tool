@@ -3,7 +3,8 @@
 # Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
 # See license text in LICENSE.md
 #
-
+JDK_HOME="${JDK_HOME:-/usr/lib/jvm/zulu-8-amd64}"
+export PATH="${JDK_HOME}/bin:${PATH}"
 rrupdate_home="$HOME/.rrupdate"
 rrupdate_archive="${rrupdate_home}/archive"
 rrupdate_bin="${rrupdate_home}/bin"

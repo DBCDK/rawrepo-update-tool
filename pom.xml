@@ -9,7 +9,7 @@
     <groupId>dk.dbc</groupId>
     <artifactId>rawrepo-update-tool</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>rawrepo-update-tool</name>
     <url>https://github.com/DBCDK/rawrepo-update-tool/</url>
 
@@ -32,7 +32,7 @@
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public/</url>
+            <url>https://mavenrepo.dbc.dk/content/groups/public/</url>
         </repository>
     </repositories>
 
@@ -40,7 +40,7 @@
         <repository>
             <id>mavenrepo.dbc.dk</id>
             <name>DBC's interne Maven Repository</name>
-            <url>http://mavenrepo.dbc.dk/content/repositories/releases</url>
+            <url>https://mavenrepo.dbc.dk/content/repositories/releases</url>
         </repository>
     </distributionManagement>
 

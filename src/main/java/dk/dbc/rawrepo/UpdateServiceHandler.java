@@ -218,13 +218,13 @@ class UpdateServiceHandler {
                                 messageList.add(message.getMessage());
                             }
                             sb.append(String.join(", ", messageList));
-                            LOGGER.info(sb.toString());
+                            LOGGER.error(sb.toString());
                         } else if (result.getDoubleRecordEntries() != null) {
                             final String doubleRecordKey = result.getDoubleRecordKey();
                             final List<String> messages = getMessages(result);
-                            LOGGER.info("Error updating '{}:{}'. Got double record error with key: {} and message(s): {}", recordId, recordAgencyId, doubleRecordKey, String.join(", ", messages));
+                            LOGGER.error("Error updating '{}:{}'. Got double record error with key: {} and message(s): {}", recordId, recordAgencyId, doubleRecordKey, String.join(", ", messages));
                         } else {
-                            LOGGER.info("Error updating '{}:{}'. Got message: {}", recordId, recordAgencyId, result);
+                            LOGGER.error("Error updating '{}:{}'. Got message: {}", recordId, recordAgencyId, result);
                         }
                     }
                 } catch (WebServiceException | NullPointerException | IllegalArgumentException ex) {

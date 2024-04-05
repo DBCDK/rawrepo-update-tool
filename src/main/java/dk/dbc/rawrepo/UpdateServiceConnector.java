@@ -1,23 +1,18 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
- * See license text in LICENSE.txt
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.invariant.InvariantUtil;
-import dk.dbc.updateservice.service.api.Authentication;
-import dk.dbc.updateservice.service.api.BibliographicRecord;
-import dk.dbc.updateservice.service.api.CatalogingUpdatePortType;
-import dk.dbc.updateservice.service.api.Options;
-import dk.dbc.updateservice.service.api.UpdateOptionEnum;
-import dk.dbc.updateservice.service.api.UpdateRecordRequest;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateService;
+import dk.dbc.oss.ns.catalogingupdate.Authentication;
+import dk.dbc.oss.ns.catalogingupdate.BibliographicRecord;
+import dk.dbc.oss.ns.catalogingupdate.CatalogingUpdatePortType;
+import dk.dbc.oss.ns.catalogingupdate.Options;
+import dk.dbc.oss.ns.catalogingupdate.UpdateOptionEnum;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordRequest;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordResult;
+import dk.dbc.oss.ns.catalogingupdate.UpdateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.BindingProvider;
+import jakarta.xml.ws.BindingProvider;
 
 /**
  * Update web service connector.

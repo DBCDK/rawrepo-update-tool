@@ -1,36 +1,32 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
- * See license text in LICENSE.txt
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.DataField;
-import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReader;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
+import dk.dbc.oss.ns.catalogingupdate.BibliographicRecord;
+import dk.dbc.oss.ns.catalogingupdate.DoubleRecordEntries;
+import dk.dbc.oss.ns.catalogingupdate.DoubleRecordEntry;
+import dk.dbc.oss.ns.catalogingupdate.ExtraRecordData;
+import dk.dbc.oss.ns.catalogingupdate.MessageEntry;
+import dk.dbc.oss.ns.catalogingupdate.Messages;
+import dk.dbc.oss.ns.catalogingupdate.RecordData;
+import dk.dbc.oss.ns.catalogingupdate.UpdateRecordResult;
+import dk.dbc.oss.ns.catalogingupdate.UpdateStatusEnum;
 import dk.dbc.rawrepo.bindings.BibliographicRecordExtraData;
 import dk.dbc.rawrepo.bindings.BibliographicRecordExtraDataMarshaller;
-import dk.dbc.updateservice.service.api.BibliographicRecord;
-import dk.dbc.updateservice.service.api.DoubleRecordEntries;
-import dk.dbc.updateservice.service.api.DoubleRecordEntry;
-import dk.dbc.updateservice.service.api.ExtraRecordData;
-import dk.dbc.updateservice.service.api.MessageEntry;
-import dk.dbc.updateservice.service.api.Messages;
-import dk.dbc.updateservice.service.api.RecordData;
-import dk.dbc.updateservice.service.api.UpdateRecordResult;
-import dk.dbc.updateservice.service.api.UpdateStatusEnum;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.WebServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.WebServiceException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,13 +39,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class UpdateServiceHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateServiceHandler.class);
+
     private static final String RECORD_SCHEMA = "info:lc/xmlns/marcxchange-v1";
     private static final String RECORD_PACKAGING = "xml";
+
     private final BibliographicRecordExtraDataMarshaller bibliographicRecordExtraDataMarshaller =
             new BibliographicRecordExtraDataMarshaller();
 
-    private AtomicInteger errorCount = new AtomicInteger(0);
-    private AtomicInteger successCount = new AtomicInteger(0);
+    private final AtomicInteger errorCount = new AtomicInteger(0);
+    private final AtomicInteger successCount = new AtomicInteger(0);
 
     private final String username;
     private final String groupId;
@@ -94,36 +94,36 @@ class UpdateServiceHandler {
             AtomicInteger totalCount = new AtomicInteger(0);
 
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-            MarcRecord record = marcReader.read();
-            while (record != null) {
+            MarcRecord marcRecord = marcReader.read();
+            while (marcRecord != null) {
                 totalCount.getAndIncrement();
 
                 if (errorLimit > -1 && errorCount.get() > errorLimit) {
                     throw new RuntimeException("Hit error limit, so aborting");
                 }
 
-                final Runnable worker = new UpdateThead(updateServiceConnector, dBuilder, record);
+                final Runnable worker = new UpdateThead(updateServiceConnector, dBuilder, marcRecord);
                 executor.execute(worker);
 
-                record = marcReader.read();
+                marcRecord = marcReader.read();
 
-                if (totalCount.get() % 100 == 0 || record == null) {
+                if (totalCount.get() % 100 == 0 || marcRecord == null) {
                     executor.shutdown();
                     executor.awaitTermination(60, TimeUnit.MINUTES);
                     executor = Executors.newFixedThreadPool(threadCount);
-                    if (record != null) { // Only print the loop message while actually looping
-                        System.out.println(String.format("Processed %s records", totalCount));
+                    if (marcRecord != null) { // Only print the loop message while actually looping
+                        LOGGER.info("Processed {} records", totalCount);
                     }
                 }
             }
-            System.out.println("DONE");
-            System.out.println(String.format("Processed a total of %s records", totalCount));
-            System.out.println(String.format("%s with success", successCount));
-            System.out.println(String.format("%s with error", errorCount));
+            LOGGER.info("DONE");
+            LOGGER.info("Processed a total of {} records", totalCount);
+            LOGGER.info("{} with success", successCount);
+            LOGGER.info("{} with error", errorCount);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException();
         } catch (InterruptedException e) {
-            System.out.println("Interrupt exception - aborting.");
+            LOGGER.error("Interrupt exception - aborting.");
             throw new RuntimeException();
         } catch (MarcReaderException e) {
             e.printStackTrace();
@@ -191,11 +191,12 @@ class UpdateServiceHandler {
                         successCount.getAndIncrement();
                     } else {
                         errorCount.getAndIncrement(); // Check for error count last so that we get the last error message
-                        final Optional<Field> field001 = marcRecord.getField(MarcRecord.hasTag("001"));
-                        String recordId = "unknown", recordAgencyId = "unknown";
+                        final Optional<DataField> field001 = marcRecord.getField(DataField.class, MarcRecord.hasTag("001"));
+                        String recordId = "unknown";
+                        String recordAgencyId = "unknown";
                         if (field001.isPresent()) {
-                            final DataField dataField001 = (DataField) field001.get();
-                            for (SubField subField : dataField001.getSubfields()) {
+                            final DataField dataField001 = field001.get();
+                            for (SubField subField : dataField001.getSubFields()) {
                                 if (subField.getCode() == 'a') {
                                     recordId = subField.getData();
                                 }
@@ -217,41 +218,45 @@ class UpdateServiceHandler {
                                 messageList.add(message.getMessage());
                             }
                             sb.append(String.join(", ", messageList));
-                            System.out.println(sb.toString());
+                            LOGGER.info(sb.toString());
                         } else if (result.getDoubleRecordEntries() != null) {
                             final String doubleRecordKey = result.getDoubleRecordKey();
-                            final List<String> messages = new ArrayList<>();
-
-                            final DoubleRecordEntries doubleRecordEntries = result.getDoubleRecordEntries();
-                            for (DoubleRecordEntry doubleRecordEntry : doubleRecordEntries.getDoubleRecordEntry()) {
-                                if (!messages.contains(doubleRecordEntry.getMessage())) {
-                                    messages.add(doubleRecordEntry.getMessage());
-                                }
-                            }
-                            System.out.println("Error updating '" + recordId + ":" + recordAgencyId +
-                                    "'. Got double record error with key: " + doubleRecordKey + " and message(s): " + String.join(", ", messages));
+                            final List<String> messages = getMessages(result);
+                            LOGGER.info("Error updating '{}:{}'. Got double record error with key: {} and message(s): {}", recordId, recordAgencyId, doubleRecordKey, String.join(", ", messages));
                         } else {
-                            System.out.println("Error updating '" + recordId + ":" + recordAgencyId + "'. Got message: " + result);
+                            LOGGER.info("Error updating '{}:{}'. Got message: {}", recordId, recordAgencyId, result);
                         }
                     }
                 } catch (WebServiceException | NullPointerException | IllegalArgumentException ex) {
-                    System.out.println("Caught exception from update: " + ex.toString());
+                    LOGGER.error("Caught exception from update: {}", ex.toString());
                     errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 } catch (SAXException ex) {
-                    System.out.println("Could not parse line");
+                    LOGGER.error("Could not parse line");
                     errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 } catch (JAXBException e) {
-                    System.out.println("Could not create extra record data.");
+                    LOGGER.error("Could not create extra record data.");
                     errorCount.getAndIncrement();
                     throw new RuntimeException("Aborting");
                 }
             } catch (IOException ex) {
-                System.out.println("Could not read line");
+                LOGGER.error("Could not read line");
                 errorCount.getAndIncrement();
                 throw new RuntimeException("Aborting");
             }
         }
+    }
+
+    private static List<String> getMessages(UpdateRecordResult result) {
+        final List<String> messages = new ArrayList<>();
+
+        final DoubleRecordEntries doubleRecordEntries = result.getDoubleRecordEntries();
+        for (DoubleRecordEntry doubleRecordEntry : doubleRecordEntries.getDoubleRecordEntry()) {
+            if (!messages.contains(doubleRecordEntry.getMessage())) {
+                messages.add(doubleRecordEntry.getMessage());
+            }
+        }
+        return messages;
     }
 }

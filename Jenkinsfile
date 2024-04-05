@@ -1,11 +1,11 @@
 #!groovy
-//Blah
-def workerNode = "devel11"
+
+def workerNode = "devel12"
 
 pipeline {
     agent { label workerNode }
     tools {
-        jdk 'jdk8'
+        jdk 'jdk11'
         maven 'Maven 3'
     }
     environment {

@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
- * See license text in LICENSE.txt
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.DanMarc2Charset;
@@ -12,6 +7,8 @@ import dk.dbc.marc.reader.LineFormatReader;
 import dk.dbc.marc.reader.MarcReader;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +19,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class UpdateApp {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateApp.class);
+
     private static final int PUSHBACK_BUFFER_SIZE = 1000;
 
     public static void main(String[] args) {
@@ -30,7 +29,7 @@ public class UpdateApp {
         } catch (CliException e) {
             System.exit(1);
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            LOGGER.error(e.getMessage());
             System.exit(1);
         }
         System.exit(0);
@@ -53,18 +52,18 @@ public class UpdateApp {
         final File in = cli.args.get("IN");
         final int pushbackBufferSize = (int) Math.min(in.length(), PUSHBACK_BUFFER_SIZE);
 
-        System.out.println("***************************");
-        System.out.println("* Update Service URL: " + updateServiceUrl);
-        System.out.println("*           Username: " + username);
-        System.out.println("*              Group: " + groupId);
-        System.out.println("*           Password: " + password.substring(0, 1) + "********");
-        System.out.println("*           Template: " + template);
-        System.out.println("*        Tracking Id: " + trackingId);
-        System.out.println("*           Priority: " + priority);
-        System.out.println("*           Provider: " + provider);
-        System.out.println("*      Validate Only: " + validateOnly);
-        System.out.println("*        Error Limit: " + errorLimit);
-        System.out.println("***************************");
+        LOGGER.debug("***************************");
+        LOGGER.debug("* Update Service URL: {}", updateServiceUrl);
+        LOGGER.debug("*           Username: {}", username);
+        LOGGER.debug("*              Group: {}", groupId);
+        LOGGER.debug("*           Password: {}", "********");
+        LOGGER.debug("*           Template: {}", template);
+        LOGGER.debug("*        Tracking Id: {}", trackingId);
+        LOGGER.debug("*           Priority: {}", priority);
+        LOGGER.debug("*           Provider: {}", provider);
+        LOGGER.debug("*      Validate Only: {}", validateOnly);
+        LOGGER.debug("*        Error Limit: {}", errorLimit);
+        LOGGER.debug("***************************");
 
         try (PushbackInputStream is = "-".equals(in.getName())
                 ? new PushbackInputStream(System.in, pushbackBufferSize)
